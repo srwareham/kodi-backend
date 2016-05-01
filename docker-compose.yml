@@ -1,0 +1,27 @@
+version: '2'
+services:
+  samba-server:
+    build: SambaServer/
+    ports:
+     - "137:137"
+     - "138:138"
+     - "139:139"
+     - "445:445"
+    volumes:
+     - $HOME/External/Media:/Share
+    # Required for samba to run in foreground
+    tty: true
+
+  kodi-mysql-server:
+    build: KodiMySQLServer/
+    ports:
+     - "3306:3306"
+    # Store kodi mysql library in a volume so it can be easily backed up and is not incorporated in container updates.
+    volumes:
+     - kodi-mysql-data:/var/lib/mysql
+    # Load sql after samba. Order doesn't strictly matter, just more logical. Note: does not mean samba setup is complete.
+    depends_on:
+     - samba-server
+volumes:
+  kodi-mysql-data:
+    driver: local
