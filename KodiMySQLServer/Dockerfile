@@ -34,7 +34,7 @@ ADD my.cnf /etc/mysql/
 ADD create_kodi.sql /create_kodi.sql
 # The bash script which starts the service in the background, calls the above to provision the kodi user, then stops the service so that it can be run in foreground mode
 ADD configure_mysql.sh /configure_mysql.sh
-RUN /configure_mysql.sh
+RUN bash /configure_mysql.sh
 
 # Run mysql-server in foreground as necessitated by docker
 ENTRYPOINT ["mysqld_safe"]
