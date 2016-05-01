@@ -25,10 +25,11 @@ To install Kodi Backend, simply:
 Usage
 -----
 
+
 Starting the Backend
 ####################
 
-Once inside the kodi-backend folder on your server, starting the service is as simple as:
+Once inside the kodi-backend source code folder on your server, starting the service is as simple as:
 
 .. code-block:: bash
 
@@ -45,12 +46,11 @@ After running the above, Kodi Backend will be running with the following host po
 Client Connection to the Backend
 ################################
 
-To use your newly setup backend, each kodi client in your network simply needs two files added to its `userdata <http://kodi.wiki/view/Userdata>`_ folder: `advancedsettings.xml <http://kodi.wiki/view/Advancedsettings.xml>`_ and `passwords.xml <http://kodi.wiki/view/MySQL/Setting_up_Kodi>`_
+To use your newly setup backend, each kodi client in your network needs one file added to its `userdata <http://kodi.wiki/view/Userdata>`_ folder: `advancedsettings.xml <http://kodi.wiki/view/Advancedsettings.xml>`_
 
 advancedsettings.xml
 ^^^^^^^^^^^^^^^^^^^^
 Your advancedsettings.xml will take the following form (with SERVER_IP_ADDRESS replaced with the local IP address of the server you are running Kodi Backend on)
-
 
 .. code-block:: xml
 
@@ -75,77 +75,55 @@ Your advancedsettings.xml will take the following form (with SERVER_IP_ADDRESS r
       </videolibrary>
     </advancedsettings>
 
-(passwords.xml
-^^^^^^^^^^^^^
-Your passwords.xml will take the following form (with SERVER_IP_ADDRESS replaced with the local IP address of the server you are running Kodi Backend on and PATH_TO_MEDIA replaced with the path, on that server, that leads to your media files).
-
-.. code-block:: xml
-
-    <passwords>
-        <path>
-            <from pathversion="1">smb://SERVER_IP_ADDRESS/PATH_TO_MEDIA</from>
-            <to pathversion="1">smb://root:password@SERVER_IP_ADDRESS/PATH_TO_MEDIA/</to>
-        </path>
-    </passwords>
-
-Note: currently, Kodi Backend only supports the username "root" and is preconfigured with password "password" for hosting a samba file share--allowing the username to be flexible is on the road map for enhancements.
 
 
-Using the Kodi GUI
-##################
+Adding Media Sources Using the Kodi GUI
+#######################################
 
-Instead of copying the passwords.xml file, it is additionally possible to manually add the samba share to your Kodi library. The steps to do so are as follows (from the home screen of the default Confluence skin):
-
-
-1.) Navigate to Videos --> Files --> Add videos --> Browse --> Add network location
-
-2.) Leave the Network Protocol as "Windows network (SMB) and enter the following
-
-- Server name: SERVER_IP_ADDRESS
-- Shared folder: media
-- Username: root
-- Password: password
-
-3.) Press OK and then navigate to the directory you wish to add; press OK again and select your desired scraper (if any).
-4.) A popup will appear asking you if you would like to update your library, click yes.
+If this is the first kodi client you are setting up, you will need to manually configure your Kodi client to connect to the samba share (the library database syncing has already been taken care of by advancedsettings.xml). The steps to do so are as follows (from the home screen of the default Confluence skin):
 
 
+1. Navigate to Videos --> Files --> Add videos --> Browse --> Add network location
+2. Leave the Network Protocol as "Windows network (SMB) and enter the following
+
+ - Server name: SERVER_IP_ADDRESS
+ - Shared folder: media
+ - Username: root
+ - Password: password
+
+3. Press OK and then navigate to the directory you wish to add; press OK again and select your desired scraper (if any).
+4. A popup will appear asking you if you would like to update your library, click yes.
+5. Repeat steps 1-4 for each video folder you would like added to your library; follow a parallel logic for adding any audio folders.
+6. That's it! You're done!
+
+Note:
+
+- Currently, Kodi Backend only supports the username "root" and is preconfigured with password "password" for hosting a samba file share--allowing the username to be flexible is on the road map for enhancements.
+- If you are feeling adventurous, it *should* be possible to automate the provisioning process for each Kodi client by copying 3 properly-formatted files into your userdata folder: advancedsettings.xml, passwords.xml, sources.xml.
 
 Features
 --------
 
-- Both bits and bytes are supported as file and speed units are supported (don't let your ISP pull the wool over your eyes there). Accordingly, Timeleft is case-sensitive in that it distinguishes between B and b (i.e., 1MB = 8 Mb; all other characters *should* be case independent).
+- Quickly and portably set up a centralized server that can host a file server and a mysql server for hosting media files and libraries for any number of Kodi clients
 
-- Speed units can take the format of B/s or Bps (e.g., both 1MBps and 1MB/s are accepted).
+- Easily backup the mysql database which holds your Kodi library.
 
-- Sizes prefixes ranging from bits all the way up to yottabytes (2\ :sup:`80` bytes) are currently supported.
+ - :code:`docker run --rm -it -v kodibackend_kodi-mysql-data:/var/lib/msql -v $(pwd):/backup ubuntu bash -c "tar czvf /backup/msql.tar.gz /var/lib/msql && chown $(id -u):$(id -g)` will create a tar.gz file backing up all of your library metadata
 
-- The output format only shows the largest unit necessary to display the time remaining (i.e., "0.0 minutes, 23.0 seconds" will never occur).
-
-
+- Portability: If you want to setup a new server, you simply need to take a backup of your old database, install docker and Kodi Backend on your new server, and copy the contents of your backup to your new server.
 
 
+Road Map
+--------
 
-
-
-
-
-
-
-Alternatively, if you would like to install from source:
-
-.. code-block:: bash
-
-    $ pip install git+https://github.com/swareham/timeleft.git
-
-
-
-
-Pip will automatically add the "timeleft" executable to your path and you will be ready to go!
+1. Allow usernames and passwords to be Kodi-Backend-wide configurable in centralized location
+2. Add instructions for loading a mysql database backup
+3. Add add helper scripts to create the necessary userdata configuration files in the hopes of needing zero gui configurations
+4. (?) Link in a headless kodi kodi container used to automatically update the library
 
 
 Credits
 -------
 
-- Logic for powering Timeleft: Sean Wareham
-- Template for pip / setuptools support: Kenneth Reitz and all of the developers of requests at https://github.com/kennethreitz/requests
+- Logic for powering Kodi Backend: Sean Wareham
+- Odds and ends needed to dockerize everything: `<stackoverflow.com>`_
