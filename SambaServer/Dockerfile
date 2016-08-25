@@ -32,7 +32,7 @@ ADD smb.conf /etc/samba/
 # Creates the user if necessary and sets its samba password.
 # Note: additional user support is not yet implemented.
 # At the time being, the only username that is supported is root so the user creation part will always gracefully fail. See above discussion.
-RUN useradd -m $USERNAME || echo $PASSWORD | tee - | smbpasswd -a $USERNAME && smbd restart
+RUN useradd -m $USERNAME || printf "$PASSWORD\n$PASSWORD\n" | smbpasswd -a $USERNAME && smbd restart
 
 # Start the samba application in foreground mode as required by docker.
 # Note: for this to work, this image *MUST* be invoked with a pseudo tty  (e.g., docker run -t)
