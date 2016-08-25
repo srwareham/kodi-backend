@@ -10,7 +10,7 @@
 # docker run -d --name kodi-mysql-server -p 3306:3306 kodi-mysql-server
 
 
-FROM ubuntu
+FROM ubuntu:14.04
 
 MAINTAINER srwareham
 

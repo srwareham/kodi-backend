@@ -9,7 +9,7 @@
 # Example run to start the container / service as daemon
 # docker run --name samba-server -t -d -v $HOME:/Share -p 137:137 -p 138:138 -p 139:139 -p 445:445 samba-server
 
-FROM ubuntu
+FROM ubuntu:14.04
 
 MAINTAINER srwareham
 
